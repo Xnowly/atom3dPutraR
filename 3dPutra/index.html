@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualisator Atom 3D Interaktif</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Canvas Container for Three.js -->
+        <div id="canvas-container"></div>
+        
+        <!-- Ambient Particles Overlay or Background Glow -->
+        <div class="background-overlay"></div>
+
+        <!-- Toggle UI Button -->
+        <button id="ui-toggle-btn" class="ui-toggle-btn glass" title="Tampilkan UI (Tekan 'H')">
+            <i class="fa-solid fa-eye"></i>
+        </button>
+
+        <!-- UI Layout -->
+        <div class="ui-wrapper ui-hidden">
+            <!-- Sidebar Panel: Controls -->
+            <aside class="panel control-panel glass">
+                <div class="panel-header">
+                    <div class="logo">
+                        <i class="fa-solid fa-atom pulse-icon"></i>
+                        <span>ATOMIX 3D</span>
+                    </div>
+                    <p class="subtitle">Visualisasi Atom Interaktif</p>
+                </div>
+
+                <div class="panel-section">
+                    <h3><i class="fa-solid fa-flask"></i> Pilih Unsur</h3>
+                    <div class="select-wrapper">
+                        <select id="element-select">
+                            <option value="H">Hidrogen (H)</option>
+                            <option value="He">Helium (He)</option>
+                            <option value="Li">Litium (Li)</option>
+                            <option value="Be">Berilium (Be)</option>
+                            <option value="B">Boron (B)</option>
+                            <option value="C" selected>Karbon (C)</option>
+                            <option value="N">Nitrogen (N)</option>
+                            <option value="O">Oksigen (O)</option>
+                            <option value="F">Fluor (F)</option>
+                            <option value="Ne">Neon (Ne)</option>
+                            <option value="Na">Natrium (Na)</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down select-arrow"></i>
+                    </div>
+
+                    <div class="quick-elements">
+                        <button class="quick-btn" data-val="H">H</button>
+                        <button class="quick-btn" data-val="He">He</button>
+                        <button class="quick-btn active" data-val="C">C</button>
+                        <button class="quick-btn" data-val="O">O</button>
+                        <button class="quick-btn" data-val="Ne">Ne</button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3><i class="fa-solid fa-sliders"></i> Pengaturan</h3>
+                    
+                    <div class="control-group">
+                        <label for="speed-slider">
+                            <span>Kecepatan Animasi</span>
+                            <span class="value-display" id="speed-val">1.0x</span>
+                        </label>
+                        <input type="range" id="speed-slider" min="0" max="3" step="0.1" value="1.0">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="scale-slider">
+                            <span>Skala Atom</span>
+                            <span class="value-display" id="scale-val">1.0x</span>
+                        </label>
+                        <input type="range" id="scale-slider" min="0.5" max="2" step="0.1" value="1.0">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="nucleus-density">
+                            <span>Kepadatan Inti</span>
+                            <span class="value-display" id="density-val">1.0x</span>
+                        </label>
+                        <input type="range" id="nucleus-density" min="0.5" max="1.5" step="0.1" value="1.0">
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3><i class="fa-solid fa-eye"></i> Tampilan</h3>
+                    
+                    <div class="toggle-group">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-orbits" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span>Tampilkan Lintasan Orbit</span>
+                    </div>
+
+                    <div class="toggle-group">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-glow" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span>Efek Cahaya (Glow)</span>
+                    </div>
+
+                    <div class="toggle-group">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-vibrate" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span>Getaran Inti Atom</span>
+                    </div>
+                </div>
+
+                <button id="reset-btn" class="action-btn"><i class="fa-solid fa-arrows-rotate"></i> Reset Sudut Pandang</button>
+            </aside>
+
+            <!-- Info Panel: Atomic Info -->
+            <aside class="panel info-panel glass">
+                <div class="info-header">
+                    <div class="element-badge" id="info-badge">C</div>
+                    <div>
+                        <h2 id="info-name">Karbon</h2>
+                        <p id="info-category">Nonlogam Reaktif</p>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-label">Nomor Atom</span>
+                        <span class="stat-value" id="info-number">6</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Massa Atom</span>
+                        <span class="stat-value" id="info-mass">12.011</span>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3><i class="fa-solid fa-circle-info"></i> Deskripsi</h3>
+                    <p id="info-desc" class="desc-text">
+                        Karbon adalah unsur kimia dengan simbol C dan nomor atom 6. Karbon bersifat nonlogam dan tetravalen—membuat empat elektron tersedia untuk membentuk ikatan kimia kovalen. Karbon merupakan dasar dari semua kehidupan organik.
+                    </p>
+                </div>
+
+                <div class="info-section">
+                    <h3><i class="fa-solid fa-circle-nodes"></i> Partikel Subatom</h3>
+                    <ul class="particle-list">
+                        <li>
+                            <span class="particle-item proton"><i class="fa-solid fa-plus-circle"></i> Proton</span>
+                            <span class="particle-count" id="info-protons">6</span>
+                        </li>
+                        <li>
+                            <span class="particle-item neutron"><i class="fa-solid fa-circle"></i> Neutron</span>
+                            <span class="particle-count" id="info-neutrons">6</span>
+                        </li>
+                        <li>
+                            <span class="particle-item electron"><i class="fa-solid fa-minus-circle"></i> Elektron</span>
+                            <span class="particle-count" id="info-electrons">6</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="info-section">
+                    <h3><i class="fa-solid fa-layer-group"></i> Konfigurasi Kulit</h3>
+                    <div class="config-display" id="info-config">2, 4</div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Instructions bottom tooltip -->
+        <div class="instructions-tooltip glass ui-hidden">
+            <span><i class="fa-solid fa-mouse-pointer"></i> <strong>Klik & Geser</strong> untuk memutar</span>
+            <span class="separator">|</span>
+            <span><i class="fa-solid fa-magnifying-glass-plus"></i> <strong>Scroll</strong> untuk zoom</span>
+            <span class="separator">|</span>
+            <span><i class="fa-solid fa-arrows-left-right"></i> <strong>Klik Kanan & Geser</strong> untuk geser posisi</span>
+        </div>
+    </div>
+
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- OrbitControls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- Main JS Application -->
+    <script src="app.js"></script>
+</body>
+</html>
